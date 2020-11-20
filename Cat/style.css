@@ -1,0 +1,20 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: sans-serif;
+    overflow: hidden;
+    background-image: url('horses_grazing_in_a_field-wallpaper-2560x1440.jpg');
+    background-repeat: no-repeat;
+    background-position: start;
+    background-size: cover;
+}
+.scene,
+canvas{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <h1>TEST</h1>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
+    
+    <script>
+        /* SETUP */
+
+        //Scene
+        var scene = new THREE.Scene();
+        //Parametrar för Field of view, Ascept Ratio, Near & Far plane?
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        //kamera position funkar som en zoom in o zoom ut, där högre antal är längre ifrån.
+        camera.position.z = 5;
+        //Renderer
+        var renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setClearColor("#75DDDD");
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        document.body.appendChild(renderer.domElement);
+
+        //Gör canvaset responsivt
+        window.addEventListener('resize', () => {
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+
+            camera.updateProjectionMatrix();
+        })
+
+        //Fixa så att man kan integrera med objekt
+        var raycaster = new THREE.Raycaster();
+        var mouse = new THREE.Vector2();
+
+        //Fixar formen på 3D objektet
+        /* Sphere Shape */
+            //ju högre antal på SphereGeometry t.ex. (1, 10, 10) Desto rundare blir den
+            //var geometry = new THREE.SphereGeometry(1, 4, 4);
+        /* Box Shape */
+        var geometry = new THREE.SphereGeometry(.5, 10, 10);
+        var material = new THREE.MeshLambertMaterial({color: "#E86A92"});
+        //var mesh = new THREE.Mesh(geometry, material);
+
+        /* Flytta på boxen / ge x-axis en annan position än rakt på (så man ser sidan med) */
+        //mesh.position.x = 2;
+        //mesh.position.set(); för att definera x y z på en gång
+        //även mesh.position.rotate(); för att rotera objekt med hjälp av grader
+
+        //scene.add(mesh);
+
+        meshX = -10;
+        for (var i = 0; i < 15; i++){
+            var mesh = new THREE.Mesh(geometry, material);
+            mesh.position.x = (Math.random() - 0.5) * 10;
+            mesh.position.y = (Math.random() - 0.5) * 10; 
+            mesh.position.z = (Math.random() - 0.5) * 10;  
+            scene.add(mesh);
+            meshX+=1;
+        }
+
+        
+
+        //Sätt ljuset för scenen
+        //Ljusets färg, intensity och avstånd bestäms av parametrarna
+        var light = new THREE.PointLight('white', 1, 50);
+        //Ljusets position bestäms av X Y Z värden
+        light.position.set(2,2,4);
+        scene.add(light);
+
+        //En till lampa för att fixa skuggornas hårdhet
+        var light2 = new THREE.PointLight('white', 1, 10);
+        light2.position.set(-2,-5,-20);
+        scene.add(light2); 
+        
+        
+
+        
+        
+
+        //Rendera scenen
+        var render = () => {
+            //Draws the 3D shape in 60fps
+            requestAnimationFrame(render);
+            
+            //Med andra ord om vi lägger till en positionsjusterare så kommer den snurra i 60fps
+            //Eftersom den ritas om hela tiden
+            /* mesh.rotation.x += 0.01;
+            mesh.rotation.y += 0.01; */
+
+
+
+            //Renders the actual scene
+            renderer.render(scene, camera);
+
+        }
+
+        //Get position of mosue
+        function onMouseMove(event){
+            event.preventDefault();
+            //Uträkning från three.js docs
+            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            var intersects = raycaster.intersectObjects(scene.children, true);
+            
+            for (var i = 0; i < intersects.length; i++){
+                //GSAP Timeline Animation
+                this.tl = new TimelineMax();
+                //1 = lång tid animationen kör(nu 1s), objektet beskrive hur den ska scaleas(x: 2 är att den fördubblar sin längd)
+                //this.tl.to(intersects[i].object.scale, 1, {x: 2, ease: Expo.easeOut});
+                //this.tl.to(intersects[i].object.scale, .5, {x: .5, ease: Expo.easeOut});
+                this.tl.to(intersects[i].object.position, 3, {z: (Math.random() - 0.5) * 2, ease: Expo.easeOut});
+                //this.tl.to(intersects[i].object.rotation, 1, {y: Math.PI*.5, ease: Expo.easeOut}, "=-1.5");
+                this.tl.to(intersects[i].object.rotation, 2, {y: (Math.random() - 0.5) * 50, ease: Expo.easeOut}, "=-3");
+                this.tl.to(intersects[i].object.position, 4, {y: (Math.random() - 0.5) * 10, ease: Expo.easeOut}, "=-2.5");
+            }
+        }
+
+        render();
+
+
+        window.addEventListener('click', onMouseMove);
+        
+
+
+
+
+    </script>
+    
+</body>
+</html>
